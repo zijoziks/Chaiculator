@@ -1,5 +1,15 @@
 use std::io;
 
+// u8 represent priority value
+// the higher the number is, higher the priority
+enum Token {
+    Number(i32),
+    Plus(char, u8),
+    Minus(char, u8),
+    Multiply(char, u8),
+    Divide(char, u8)
+}
+
 fn output(expression: &mut str){
     println!("Expression: {}", expression);
 }
