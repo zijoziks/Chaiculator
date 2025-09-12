@@ -26,7 +26,6 @@ fn deduct_token(deduct_from: char) -> Token{
     }
 }
 
-// TODO finish this function, last thing I did was parse a number, also need to do testing
 fn convert_to_tokens(expression: &str) -> Vec<Token> {
     let mut tokens: Vec<Token> = Vec::new();
 
@@ -52,7 +51,6 @@ fn convert_to_tokens(expression: &str) -> Vec<Token> {
 
                 let token = deduct_token(c);
                 // TODO error handling for invalid cases and invalid token vector
-                // TODO handles '/n'
                 tokens.push(token);
             }
 
