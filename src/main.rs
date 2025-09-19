@@ -1,9 +1,8 @@
 mod lexer;
+mod lisp;
 
 use std::io;
-use std::vec::Vec;
-use crate::lexer::Lexer;
-use crate::lexer::Token;
+use crate::lisp::{Lisp,expression};
 
 fn output(expression: &mut str) {
     println!("Expression: {}", expression);
@@ -14,6 +13,6 @@ fn main() {
     io::stdin()
         .read_line(&mut expression)
         .expect("Failed to read line");
-    let tokens: Vec<Token> = Lexer::new(&expression).tokens;
+    let lisp_expression: Lisp = lisp::expression(expression.trim());
     output(&mut expression);
 }
