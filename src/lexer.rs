@@ -15,14 +15,6 @@ impl Token {
             panic!("Called unwrap_token_num on a non-number.")
         }
     }
-
-    pub fn unwrap_token_op(self) -> char {
-        if let Token::Op(op) = self {
-            return op;
-        } else {
-            panic!("Called unwrap_token_op on a non-operator.")
-        }
-    }
 }
 
 pub struct Lexer {
