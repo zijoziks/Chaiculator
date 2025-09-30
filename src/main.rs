@@ -1,12 +1,11 @@
 mod lexer;
 mod lisp;
+mod calculate;
 
 use std::io;
-use crate::lisp::{Lisp,expression};
+use crate::lisp::{Lisp};
+use crate::calculate::calculate;
 
-fn output(expression: &mut str) {
-    println!("Expression: {}", expression);
-}
 fn main() {
     println!("Enter desired expression: ");
     let mut expression = String::new();
@@ -14,5 +13,6 @@ fn main() {
         .read_line(&mut expression)
         .expect("Failed to read line");
     let lisp_expression: Lisp = lisp::expression(expression.trim());
-    output(&mut expression);
+    let result = calculate(&lisp_expression);
+    println!("{}", result);
 }

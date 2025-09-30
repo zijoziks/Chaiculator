@@ -5,6 +5,64 @@ pub enum Lisp {
     Cons(Token, Vec<Lisp>)
 }
 
+impl Lisp {
+    pub fn is_atom(&self) -> bool {
+        matches!(self, Lisp::Atom(_))
+    }
+
+    pub fn is_cons(&self) -> bool {
+        matches!(self, Lisp::Cons(_, _))
+    }
+
+    // Regular vectors are those that contain Atom && Cons, irregular Atom && Atom
+    pub fn is_vec_regular(&self) -> bool {
+
+        if self.is_atom() {
+            panic!("Called is_vec_regular() on Lisp::Atom.")
+        }
+
+        let vec = self.unwrap_cons_vec();
+
+        if vec.len() < 1 || vec.len() > 2 {
+            panic!("Invalid vector length: {}", vec.len())
+        }
+
+        let first = vec.first().unwrap();
+        let second = vec.last().unwrap();
+
+        // Atom & Cons
+        if (first.is_atom() && second.is_cons()) ||
+            (first.is_cons() && second.is_atom()) {
+            true
+        } else if first.is_atom() && second.is_atom() { // Atom & Atom
+            false
+        } else {
+            panic!("Invalid vector provided!") // Invalid
+        }
+    }
+
+    pub fn unwrap_atom(&self) -> &Token {
+        match self {
+            Lisp::Atom(token) => token,
+            Lisp::Cons(_,_) => panic!("Called unwrap_atom on a Lisp::Cons.")
+        }
+    }
+
+    pub fn unwrap_cons_op(&self) -> &Token{
+        match self {
+            Lisp::Cons(token, _) => token,
+            Lisp::Atom(_) => panic!("Called unwrap_cons_op on a Lisp::Atom")
+        }
+    }
+
+    pub fn unwrap_cons_vec(&self) -> &Vec<Lisp> {
+        match self {
+            Lisp::Cons(_, vec) => vec,
+            Lisp::Atom(_) => panic!("Called unwrap_cons_vec on a Lisp::Cons.")
+        }
+    }
+}
+
 pub fn expression(input: &str) -> Lisp {
     let mut lexer = Lexer::new(input);
     expression_bp(&mut lexer, 0)
@@ -34,7 +92,9 @@ fn expression_bp(lexer: &mut Lexer, min_bp: u8) -> Lisp {
 
             // Third part
             let rhs = expression_bp(lexer, right_bp);
-            lhs = Lisp::Cons(Token::Op(op), vec![lhs, rhs])
+            lhs = Lisp::Cons(Token::Op(op), vec![lhs, rhs]);
+
+            continue;
         }
 
         break;
@@ -46,7 +106,7 @@ fn expression_bp(lexer: &mut Lexer, min_bp: u8) -> Lisp {
 // This functions gives the binding power to the operator and determines which one comes first
 fn infix_binding_power(op: char) -> Option<(u8, u8)> {
     let result = match op {
-        '+' | '-' => (2, 1),
+        '+' | '-' => (1, 2),
         '*' | '/' => (3, 4),
         _ => return None,
     };

@@ -1,10 +1,28 @@
 // These traits are necessary for methods that need copying
 #[derive(Clone, Copy)]
 pub enum Token {
-    Number(i32),
+    Number(i128),
     Op(char),
     EOF,
     Invalid,
+}
+
+impl Token {
+    pub fn unwrap_token_num(self) -> i128 {
+        if let Token::Number(num) = self {
+            return num;
+        } else {
+            panic!("Called unwrap_token_num on a non-number.")
+        }
+    }
+
+    pub fn unwrap_token_op(self) -> char {
+        if let Token::Op(op) = self {
+            return op;
+        } else {
+            panic!("Called unwrap_token_op on a non-operator.")
+        }
+    }
 }
 
 pub struct Lexer {
@@ -44,7 +62,7 @@ impl Lexer {
             // Encounter an operator
             if (!c.is_ascii_digit() || c == '\n') && !first_index.is_none() {
                 if let Some(index) = first_index {
-                    let num: i32 = expression[index..i].parse().expect("Couldn't parse number");
+                    let num= expression[index..i].parse().expect("Couldn't parse number");
                     tokens.push(Token::Number(num));
 
                     if c == '\n' {
