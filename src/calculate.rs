@@ -1,6 +1,12 @@
 use crate::lisp::Lisp;
 use crate::lexer::Token;
-pub fn calculate(lisp: &Lisp) -> i128 {
+use crate::lisp;
+
+pub fn begin_calculation(expression: &str) -> i128 {
+    let lisp_expression = lisp::expression(expression.trim());
+    calculate(&lisp_expression)
+}
+fn calculate(lisp: &Lisp) -> i128 {
 
     // This function only accepts Lisp::Cons
     if !lisp.is_cons() {

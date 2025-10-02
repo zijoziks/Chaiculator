@@ -1,7 +1,5 @@
 use std::io;
-use crate::lisp;
-use crate::lisp::Lisp;
-use crate::calculate;
+use crate::calculate::begin_calculation;
 
 pub fn cli() {
     println!("Welcome to Chaiculator!");
@@ -10,14 +8,14 @@ pub fn cli() {
     let mut result = 0;
 
     loop {
-        println!("\n\nCurrent expression: {}", current_expression);
+        println!("\n\n----------------------------------------------");
+        println!("Current expression: {}", current_expression);
         println!("Result: {}\n", result);
         println!("Please enter your expression:");
 
         current_expression.clear();
         io::stdin().read_line(&mut current_expression).expect("Failed to read line");
 
-        let lisp_expression: Lisp = lisp::expression(current_expression.trim());
-        result = calculate(&lisp_expression);
+        result = begin_calculation(current_expression.as_str());
     }
 }

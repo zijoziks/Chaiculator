@@ -3,8 +3,7 @@ mod lisp;
 mod calculate;
 mod cli;
 
-use crate::lisp::{Lisp};
-use crate::calculate::calculate;
+use crate::calculate::{begin_calculation};
 use crate::cli::cli;
 
 use clap::Parser;
@@ -36,8 +35,7 @@ fn main() {
     if args.cli {
         cli();
     } else if let Some(expression) = args.expression{
-        let lisp_expression: Lisp = lisp::expression(expression.trim());
-        let result = calculate(&lisp_expression);
+        let result = begin_calculation(expression.as_str());
         println!("{}", result);
     } else {
         eprintln!("Unexpected behaviour in main().");
