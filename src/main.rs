@@ -36,7 +36,10 @@ fn main() {
         cli();
     } else if let Some(expression) = args.expression{
         let result = begin_calculation(expression.as_str());
-        println!("{}", result);
+        match result {
+            Ok(result) => println!("{}", result),
+            Err(error) => eprintln!("{}", error),
+        }
     } else {
         eprintln!("Unexpected behaviour in main().");
         std::process::exit(1);

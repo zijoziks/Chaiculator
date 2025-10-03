@@ -8,17 +8,17 @@ pub enum Token {
 }
 
 impl Token {
-    pub fn unwrap_token_num(self) -> i128 {
+    pub fn unwrap_token_num(self) -> Result<i128, String> {
         if let Token::Number(num) = self {
-            return num;
+            Ok(num)
         } else {
-            panic!("Called unwrap_token_num on a non-number.")
+            Err(String::from("Expected a number in unwrap_token_num()."))
         }
     }
 }
 
 pub struct Lexer {
-    // TODO make getter
+    // TODO make display
     pub tokens: Vec<Token>,
 }
 
@@ -54,7 +54,7 @@ impl Lexer {
             // Encounter an operator
             if (!c.is_ascii_digit() || c == '\n') && !first_index.is_none() {
                 if let Some(index) = first_index {
-                    let num= expression[index..i].parse().expect("Couldn't parse number");
+                    let num= for_expression[index..i].parse().expect("Couldn't parse number");
                     tokens.push(Token::Number(num));
 
                     if c == '\n' {

@@ -2,15 +2,15 @@ use crate::lisp::Lisp;
 use crate::lexer::Token;
 use crate::lisp;
 
-pub fn begin_calculation(expression: &str) -> i128 {
+pub fn begin_calculation(expression: &str) -> Result<i128, String> {
     let lisp_expression = lisp::expression(expression.trim());
     calculate(&lisp_expression)
 }
-fn calculate(lisp: &Lisp) -> i128 {
+fn calculate(lisp: &Lisp) -> Result<i128, String> {
 
     // This function only accepts Lisp::Cons
     if !lisp.is_cons() {
-        panic!("Expected a Lisp::Cons")
+        return Err(String::from("Expected Lisp::Cons in calculate()"));
     }
 
     let operator = lisp.unwrap_cons_op();
@@ -26,24 +26,25 @@ fn calculate(lisp: &Lisp) -> i128 {
     if lisp.is_vec_regular() {
         // Cons & Atom
         if first.is_cons() {
-            second_number = second.unwrap_atom().unwrap_token_num();
-            first_number = calculate(first);
+            second_number = second.unwrap_atom().unwrap_token_num()?;
+            first_number = calculate(first)?;
             // Atom & Cons
         } else if first.is_atom() {
-            first_number = first.unwrap_atom().unwrap_token_num();
-            second_number = calculate(second);
+            first_number = first.unwrap_atom().unwrap_token_num()?;
+            second_number = calculate(second)?;
         } else {
-            panic!("Unexpected behaviour")
+            return Err(String::from("Unexpected behaviour in calculate()"));
         }
         // Atom & Atom
     } else {
-        first_number = first.unwrap_atom().unwrap_token_num();
-        second_number = second.unwrap_atom().unwrap_token_num();
+        first_number = first.unwrap_atom().unwrap_token_num()?;
+        second_number = second.unwrap_atom().unwrap_token_num()?;
     }
 
-    apply(operator, first_number, second_number)
+    Ok(apply(operator, first_number, second_number))
 }
 
+// TODO error handling here
 fn apply(operator: &Token, first_number: i128, second_number: i128) -> i128 {
     match operator {
         Token::Op('+') => first_number + second_number,

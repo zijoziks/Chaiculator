@@ -16,6 +16,9 @@ pub fn cli() {
         current_expression.clear();
         io::stdin().read_line(&mut current_expression).expect("Failed to read line");
 
-        result = begin_calculation(current_expression.as_str());
+        match begin_calculation(current_expression.as_str()) {
+            Ok(ok_result) => result = ok_result,
+            Err(error) => eprintln!("{}", error),
+        }
     }
 }
