@@ -63,9 +63,9 @@ impl Lisp {
     }
 }
 
-pub fn expression(input: &str) -> Lisp {
-    let mut lexer = Lexer::new(input);
-    expression_bp(&mut lexer, 0)
+pub fn expression(input: &str) -> Result<Lisp, String> {
+    let mut lexer = Lexer::new(input)?;
+    Ok(expression_bp(&mut lexer, 0))
 }
 
 fn expression_bp(lexer: &mut Lexer, min_bp: u8) -> Lisp {

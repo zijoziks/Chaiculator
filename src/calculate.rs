@@ -3,7 +3,7 @@ use crate::lexer::Token;
 use crate::lisp;
 
 pub fn begin_calculation(expression: &str) -> Result<i128, String> {
-    let lisp_expression = lisp::expression(expression.trim());
+    let lisp_expression = lisp::expression(expression.trim())?;
     calculate(&lisp_expression)
 }
 fn calculate(lisp: &Lisp) -> Result<i128, String> {

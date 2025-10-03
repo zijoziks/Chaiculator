@@ -36,7 +36,12 @@ impl Lexer {
         }
     }
 
-    pub fn new(expression: &str) -> Lexer {
+    pub fn new(expression: &str) -> Result<Lexer, String> {
+
+        if !is_expression_valid(expression) {
+            return Err(String::from("Invalid expression."));
+        }
+
         let mut tokens: Vec<Token> = Vec::new();
 
         let mut first_index: Option<usize> = None;
@@ -72,7 +77,7 @@ impl Lexer {
 
         tokens.reverse();
 
-        Lexer { tokens }
+        Ok(Lexer { tokens })
     }
 
     // Following 2 methods assume the vector is reversed
@@ -83,4 +88,14 @@ impl Lexer {
     pub fn peek(&mut self) -> Token {
         self.tokens.last().copied().unwrap_or(Token::EOF)
     }
+}
+
+fn is_expression_valid(expression: &str) -> bool {
+    let allowed: Vec<char> =
+        [
+            '0', '1', '2', '3', '4', '5', '6', '7', '8', '9',
+            '+', '-', '*', '/',
+        ]
+            .into_iter().collect();
+    expression.chars().all(|c| allowed.contains(&c))
 }
