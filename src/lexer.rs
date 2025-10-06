@@ -18,7 +18,6 @@ impl Token {
 }
 
 pub struct Lexer {
-    // TODO make display
     pub tokens: Vec<Token>,
 }
 
@@ -45,11 +44,14 @@ impl Lexer {
         let mut tokens: Vec<Token> = Vec::new();
 
         let mut first_index: Option<usize> = None;
+        let mut minus_sign: bool = false;
         
         // We'll use the following string because it makes our lexer work properly
         let mut for_expression = expression.to_string();
         for_expression.push('\n');
-            
+
+
+        // FOR LOOP BEGINS HERE
         for (i, c) in for_expression.chars().enumerate() {
             // Encounter first digit
             if c.is_ascii_digit() && first_index.is_none() {
@@ -59,7 +61,13 @@ impl Lexer {
             // Encounter an operator
             if (!c.is_ascii_digit() || c == '\n') && !first_index.is_none() {
                 if let Some(index) = first_index {
-                    let num= for_expression[index..i].parse().expect("Couldn't parse number");
+                    let mut num= for_expression[index..i].parse().expect("Couldn't parse number");
+
+                    if minus_sign {
+                        num *= -1;
+                        minus_sign = false;
+                    }
+
                     tokens.push(Token::Number(num));
 
                     if c == '\n' {
@@ -73,12 +81,23 @@ impl Lexer {
 
                 first_index = None;
             }
+
+            // Encounter an operator before a number
+            if (is_operator(c) && first_index.is_none()) {
+                if c == '-' && minus_sign == false {
+                    minus_sign = true;
+                } else {
+                    return Err(format!("Invalid operator: {}", c))
+                }
+            }
         }
 
         tokens.reverse();
 
         Ok(Lexer { tokens })
     }
+
+
 
     // Following 2 methods assume the vector is reversed
     pub fn next(&mut self) -> Token {
@@ -98,4 +117,20 @@ fn is_expression_valid(expression: &str) -> bool {
         ]
             .into_iter().collect();
     expression.chars().all(|c| allowed.contains(&c))
+}
+
+fn is_operator(operator: char) -> bool {
+    let allowed_operators: Vec<char> =
+        [
+            '+', '-', '*', '/'
+        ]
+    .into_iter().collect();
+
+    for c in allowed_operators {
+        if operator == c {
+            return true;
+        }
+    }
+
+    false
 }
