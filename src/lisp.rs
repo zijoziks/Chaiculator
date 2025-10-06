@@ -1,8 +1,15 @@
 use crate::lexer::{Token, Lexer};
 
+#[derive(Debug)]
 pub enum Lisp {
     Atom(Token),
     Cons(Token, Vec<Lisp>)
+}
+
+pub enum State {
+    Atoms,
+    Cons,
+    Both
 }
 
 impl Lisp {
@@ -14,9 +21,7 @@ impl Lisp {
         matches!(self, Lisp::Cons(_, _))
     }
 
-    // Regular vectors are those that contain Atom && Cons, irregular Atom && Atom
-    pub fn is_vec_regular(&self) -> bool {
-
+    pub fn vec_state(&self) -> State {
         if self.is_atom() {
             panic!("Called is_vec_regular() on Lisp::Atom.")
         }
@@ -33,11 +38,13 @@ impl Lisp {
         // Atom & Cons
         if (first.is_atom() && second.is_cons()) ||
             (first.is_cons() && second.is_atom()) {
-            true
+            State::Both
         } else if first.is_atom() && second.is_atom() { // Atom & Atom
-            false
+            State::Atoms
+        } else if first.is_cons() && second.is_cons(){
+            State::Cons
         } else {
-            panic!("Invalid vector provided!") // Invalid
+            panic!("Unexpected beahviour when determining vector state.")
         }
     }
 

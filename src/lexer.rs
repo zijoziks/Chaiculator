@@ -1,5 +1,5 @@
 // These traits are necessary for methods that need copying
-#[derive(Clone, Copy)]
+#[derive(Clone, Copy, Debug)]
 pub enum Token {
     Number(i128),
     Op(char),
@@ -39,7 +39,7 @@ impl Lexer {
     pub fn new(expression: &str) -> Result<Lexer, String> {
 
         if !is_expression_valid(expression) {
-            return Err(String::from("Invalid expression."));
+            return Err(format!("Invalid expression: {}", expression));
         }
 
         let mut tokens: Vec<Token> = Vec::new();
