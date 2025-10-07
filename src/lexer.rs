@@ -58,6 +58,15 @@ impl Lexer {
                 first_index = Some(i);
             }
 
+            // Encounter an operator before a number
+            if is_operator(c) && first_index.is_none() {
+                if c == '-' && minus_sign == false {
+                    minus_sign = true;
+                } else {
+                    return Err(format!("Invalid operator: {}", c))
+                }
+            }
+
             // Encounter an operator
             if (!c.is_ascii_digit() || c == '\n') && !first_index.is_none() {
                 if let Some(index) = first_index {
@@ -80,15 +89,6 @@ impl Lexer {
                 }
 
                 first_index = None;
-            }
-
-            // Encounter an operator before a number
-            if (is_operator(c) && first_index.is_none()) {
-                if c == '-' && minus_sign == false {
-                    minus_sign = true;
-                } else {
-                    return Err(format!("Invalid operator: {}", c))
-                }
             }
         }
 
