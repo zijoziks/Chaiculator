@@ -1,12 +1,13 @@
+use rug::Integer;
 use crate::lisp::{Lisp, State};
 use crate::lexer::Token;
 use crate::lisp;
 
-pub fn begin_calculation(expression: &str) -> Result<i128, String> {
+pub fn begin_calculation(expression: &str) -> Result<Integer, String> {
     let lisp_expression = lisp::expression(expression.trim())?;
     calculate(&lisp_expression)
 }
-fn calculate(lisp: &Lisp) -> Result<i128, String> {
+fn calculate(lisp: &Lisp) -> Result<Integer, String> {
 
     // This function only accepts Lisp::Cons
     if !lisp.is_cons() {
@@ -52,7 +53,7 @@ fn calculate(lisp: &Lisp) -> Result<i128, String> {
 }
 
 // TODO error handling here
-fn apply(operator: &Token, first_number: i128, second_number: i128) -> i128 {
+fn apply(operator: &Token, first_number: Integer, second_number: Integer) -> Integer {
     match operator {
         Token::Op('+') => first_number + second_number,
         Token::Op('-') => first_number - second_number,

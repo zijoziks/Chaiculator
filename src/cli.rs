@@ -1,11 +1,12 @@
 use std::io;
+use rug::Integer;
 use crate::calculate::begin_calculation;
 
 pub fn cli() {
     println!("Welcome to Chaiculator!");
 
     let mut current_expression = String::new();
-    let mut result = 0;
+    let mut result:Integer = Integer::new();
 
     loop {
         println!("\n\n----------------------------------------------");

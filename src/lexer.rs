@@ -1,16 +1,18 @@
 // These traits are necessary for methods that need copying
-#[derive(Clone, Copy, Debug)]
+use rug::Integer;
+
+#[derive(Debug, Clone)]
 pub enum Token {
-    Number(i128),
+    Number(Integer),
     Op(char),
     EOF,
     Invalid,
 }
 
 impl Token {
-    pub fn unwrap_token_num(self) -> Result<i128, String> {
+    pub fn unwrap_token_num(&self) -> Result<Integer, String> {
         if let Token::Number(num) = self {
-            Ok(num)
+            Ok(num.clone())
         } else {
             Err(String::from("Expected a number in unwrap_token_num()."))
         }
@@ -105,26 +107,24 @@ impl Lexer {
     }
 
     pub fn peek(&mut self) -> Token {
-        self.tokens.last().copied().unwrap_or(Token::EOF)
+        self.tokens.last().cloned().unwrap_or(Token::EOF)
     }
 }
 
 fn is_expression_valid(expression: &str) -> bool {
-    let allowed: Vec<char> =
+    let allowed: Vec<char> = vec!
         [
             '0', '1', '2', '3', '4', '5', '6', '7', '8', '9',
             '+', '-', '*', '/',
-        ]
-            .into_iter().collect();
+        ];
     expression.chars().all(|c| allowed.contains(&c))
 }
 
 fn is_operator(operator: char) -> bool {
     let allowed_operators: Vec<char> =
-        [
+        vec![
             '+', '-', '*', '/'
-        ]
-    .into_iter().collect();
+        ];
 
     for c in allowed_operators {
         if operator == c {
