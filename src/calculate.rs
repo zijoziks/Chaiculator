@@ -1,14 +1,46 @@
-use rug::Integer;
+use std::ops;
+use std::str;
 use crate::lisp::{Lisp, State};
 use crate::lexer::Token;
 use crate::lisp;
 
-pub fn begin_calculation(expression: &str) -> Result<Integer, String> {
+pub trait Number: ops::MulAssign + Clone + From<i32> + str::FromStr<Err=String> +
+ops::Add<Output = Self> + ops::Sub<Output = Self> + ops::Mul<Output = Self> + ops::Div<Output = Self> { }
+
+enum Type {
+    Integer,
+    Float,
+}
+
+pub fn deduct_type (expression: &str) -> Type {
+    if contains_float_operator(expression) {
+        return Type::Float;
+    }
+
+    Type::Integer
+}
+
+fn contains_float_operator (expression: &str) -> bool {
+    let required_operators: Vec<char> = vec![ '/', ','];
+
+    for c in expression.chars() {
+        if required_operators.contains(&c) {
+            return true;
+        }
+    }
+
+    false
+}
+
+pub fn begin_calculation<T> (expression: &str) -> Result<T, String>
+where T: ops::MulAssign + Clone + From<i32> + str::FromStr<Err=String> +
+ops::Add<Output = T> + ops::Sub<Output = T> + ops::Mul<Output = T> + ops::Div<Output = T> {
     let lisp_expression = lisp::expression(expression.trim())?;
     calculate(&lisp_expression)
 }
-fn calculate(lisp: &Lisp) -> Result<Integer, String> {
-
+fn calculate<T> (lisp: &Lisp<T>) -> Result<T, String>
+where T: ops::MulAssign + Clone + From<i32> + str::FromStr<Err=String> +
+ops::Add<Output = T> + ops::Sub<Output = T> + ops::Mul<Output = T> + ops::Div<Output = T> {
     // This function only accepts Lisp::Cons
     if !lisp.is_cons() {
         return Err(String::from("Expected Lisp::Cons in calculate()"));
@@ -22,7 +54,7 @@ fn calculate(lisp: &Lisp) -> Result<Integer, String> {
 
     let first_number;
     let second_number;
-    
+
     match lisp.vec_state() {
         State::Both => {
             // Cons & Atom
@@ -35,25 +67,27 @@ fn calculate(lisp: &Lisp) -> Result<Integer, String> {
                 second_number = calculate(second)?;
             } else {
                 return Err(String::from("Unexpected behaviour in calculate()"))
-            }   
+            }
         }
-        
+
         State::Atoms => {
             first_number = first.unwrap_atom().unwrap_token_num()?;
-            second_number = second.unwrap_atom().unwrap_token_num()?;    
+            second_number = second.unwrap_atom().unwrap_token_num()?;
         }
-        
+
         State::Cons => {
             first_number = calculate(first)?;
             second_number = calculate(second)?;
         }
     }
-    
+
     Ok(apply(operator, first_number, second_number))
 }
 
 // TODO error handling here
-fn apply(operator: &Token, first_number: Integer, second_number: Integer) -> Integer {
+fn apply<T> (operator: &Token<T>, first_number: T, second_number: T) -> T
+where T: ops::MulAssign + Clone + From<i32> + str::FromStr<Err=String> +
+ops::Add<Output = T> + ops::Sub<Output = T> + ops::Mul<Output = T> + ops::Div<Output = T> {
     match operator {
         Token::Op('+') => first_number + second_number,
         Token::Op('-') => first_number - second_number,

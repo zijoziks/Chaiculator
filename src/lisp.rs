@@ -1,9 +1,11 @@
+use std::ops;
+use std::str;
 use crate::lexer::{Token, Lexer};
 
 #[derive(Debug)]
-pub enum Lisp {
-    Atom(Token),
-    Cons(Token, Vec<Lisp>)
+pub enum Lisp<T> {
+    Atom(Token<T>),
+    Cons(Token<T>, Vec<Lisp<T>>)
 }
 
 pub enum State {
@@ -12,7 +14,7 @@ pub enum State {
     Both
 }
 
-impl Lisp {
+impl<T> Lisp<T> {
     pub fn is_atom(&self) -> bool {
         matches!(self, Lisp::Atom(_))
     }
@@ -48,21 +50,21 @@ impl Lisp {
         }
     }
 
-    pub fn unwrap_atom(&self) -> &Token {
+    pub fn unwrap_atom(&self) -> &Token<T> {
         match self {
             Lisp::Atom(token) => token,
             Lisp::Cons(_,_) => panic!("Called unwrap_atom on a Lisp::Cons.")
         }
     }
 
-    pub fn unwrap_cons_op(&self) -> &Token{
+    pub fn unwrap_cons_op(&self) -> &Token<T> {
         match self {
             Lisp::Cons(token, _) => token,
             Lisp::Atom(_) => panic!("Called unwrap_cons_op on a Lisp::Atom")
         }
     }
 
-    pub fn unwrap_cons_vec(&self) -> &Vec<Lisp> {
+    pub fn unwrap_cons_vec(&self) -> &Vec<Lisp<T>> {
         match self {
             Lisp::Cons(_, vec) => vec,
             Lisp::Atom(_) => panic!("Called unwrap_cons_vec on a Lisp::Cons.")
@@ -70,12 +72,14 @@ impl Lisp {
     }
 }
 
-pub fn expression(input: &str) -> Result<Lisp, String> {
+pub fn expression<T> (input: &str) -> Result<Lisp<T>, String>
+where T: ops::MulAssign + Clone + From<i32> + str::FromStr<Err=String> {
     let mut lexer = Lexer::new(input)?;
     Ok(expression_bp(&mut lexer, 0))
 }
 
-fn expression_bp(lexer: &mut Lexer, min_bp: u8) -> Lisp {
+fn expression_bp<T> (lexer: &mut Lexer<T>, min_bp: u8) -> Lisp<T>
+where T: ops::MulAssign + Clone + From<i32> + str::FromStr<Err=String> {
     // First part
     let mut lhs = match lexer.next() {
         Token::Number(it) => Lisp::Atom(Token::Number(it)),

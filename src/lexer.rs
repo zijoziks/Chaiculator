@@ -1,16 +1,18 @@
 // These traits are necessary for methods that need copying
-use rug::Integer;
+use std::ops;
+use std::str;
 
 #[derive(Debug, Clone)]
-pub enum Token {
-    Number(Integer),
+pub enum Token<T> {
+    Number(T),
     Op(char),
     EOF,
     Invalid,
 }
 
-impl Token {
-    pub fn unwrap_token_num(&self) -> Result<Integer, String> {
+impl<T> Token<T> 
+where T: Clone {
+    pub fn unwrap_token_num(&self) -> Result<T, String> {
         if let Token::Number(num) = self {
             Ok(num.clone())
         } else {
@@ -19,12 +21,13 @@ impl Token {
     }
 }
 
-pub struct Lexer {
-    pub tokens: Vec<Token>,
+pub struct Lexer<T> {
+    pub tokens: Vec<Token<T>>,
 }
 
-impl Lexer {
-    fn deduct_token(deduct_from: char) -> Token {
+impl<T> Lexer<T> 
+where T: Clone + From<i32> + ops::MulAssign + str::FromStr<Err=String> {
+    fn deduct_token(deduct_from: char) -> Token<T> {
         match deduct_from {
             '+' => Token::Op('+'),
             '-' => Token::Op('-'),
@@ -37,13 +40,13 @@ impl Lexer {
         }
     }
 
-    pub fn new(expression: &str) -> Result<Lexer, String> {
+    pub fn new(expression: &str) -> Result<Lexer<T>, String> {
 
         if !is_expression_valid(expression) {
             return Err(format!("Invalid expression: {}", expression));
         }
 
-        let mut tokens: Vec<Token> = Vec::new();
+        let mut tokens: Vec<Token<T>> = Vec::new();
 
         let mut first_index: Option<usize> = None;
         let mut minus_sign: bool = false;
@@ -72,10 +75,10 @@ impl Lexer {
             // Encounter an operator
             if (!c.is_ascii_digit() || c == '\n') && !first_index.is_none() {
                 if let Some(index) = first_index {
-                    let mut num= for_expression[index..i].parse().expect("Couldn't parse number");
+                    let mut num= T::from(for_expression[index..i].to_string().as_str());
 
                     if minus_sign {
-                        num *= -1;
+                        num *= T::from(-1);
                         minus_sign = false;
                     }
 
@@ -102,11 +105,11 @@ impl Lexer {
 
 
     // Following 2 methods assume the vector is reversed
-    pub fn next(&mut self) -> Token {
+    pub fn next(&mut self) -> Token<T> {
         self.tokens.pop().unwrap_or(Token::EOF)
     }
 
-    pub fn peek(&mut self) -> Token {
+    pub fn peek(&mut self) -> Token<T> {
         self.tokens.last().cloned().unwrap_or(Token::EOF)
     }
 }
