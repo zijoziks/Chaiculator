@@ -4,7 +4,10 @@ use crate::lisp::{Lisp, State};
 use crate::lexer::Token;
 use crate::lisp;
 
-pub trait Number: ops::MulAssign + Clone + From<i32> + str::FromStr<Err=String> +
+pub trait Number: ops::MulAssign + Clone + From<i32> + str::FromStr +
+ops::Add<Output = Self> + ops::Sub<Output = Self> + ops::Mul<Output = Self> + ops::Div<Output = Self> { }
+
+impl<T> Number for T where T: ops::MulAssign + Clone + From<i32> + str::FromStr +
 ops::Add<Output = Self> + ops::Sub<Output = Self> + ops::Mul<Output = Self> + ops::Div<Output = Self> { }
 
 enum Type {
@@ -33,14 +36,12 @@ fn contains_float_operator (expression: &str) -> bool {
 }
 
 pub fn begin_calculation<T> (expression: &str) -> Result<T, String>
-where T: ops::MulAssign + Clone + From<i32> + str::FromStr<Err=String> +
-ops::Add<Output = T> + ops::Sub<Output = T> + ops::Mul<Output = T> + ops::Div<Output = T> {
+where T: Number {
     let lisp_expression = lisp::expression(expression.trim())?;
     calculate(&lisp_expression)
 }
 fn calculate<T> (lisp: &Lisp<T>) -> Result<T, String>
-where T: ops::MulAssign + Clone + From<i32> + str::FromStr<Err=String> +
-ops::Add<Output = T> + ops::Sub<Output = T> + ops::Mul<Output = T> + ops::Div<Output = T> {
+where T: Number {
     // This function only accepts Lisp::Cons
     if !lisp.is_cons() {
         return Err(String::from("Expected Lisp::Cons in calculate()"));
@@ -86,8 +87,7 @@ ops::Add<Output = T> + ops::Sub<Output = T> + ops::Mul<Output = T> + ops::Div<Ou
 
 // TODO error handling here
 fn apply<T> (operator: &Token<T>, first_number: T, second_number: T) -> T
-where T: ops::MulAssign + Clone + From<i32> + str::FromStr<Err=String> +
-ops::Add<Output = T> + ops::Sub<Output = T> + ops::Mul<Output = T> + ops::Div<Output = T> {
+where T: Number {
     match operator {
         Token::Op('+') => first_number + second_number,
         Token::Op('-') => first_number - second_number,

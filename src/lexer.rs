@@ -26,7 +26,7 @@ pub struct Lexer<T> {
 }
 
 impl<T> Lexer<T> 
-where T: Clone + From<i32> + ops::MulAssign + str::FromStr<Err=String> {
+where T: Clone + From<i32> + ops::MulAssign + str::FromStr {
     fn deduct_token(deduct_from: char) -> Token<T> {
         match deduct_from {
             '+' => Token::Op('+'),
@@ -50,7 +50,7 @@ where T: Clone + From<i32> + ops::MulAssign + str::FromStr<Err=String> {
 
         let mut first_index: Option<usize> = None;
         let mut minus_sign: bool = false;
-        
+
         // We'll use the following string because it makes our lexer work properly
         let mut for_expression = expression.to_string();
         for_expression.push('\n');
@@ -75,7 +75,10 @@ where T: Clone + From<i32> + ops::MulAssign + str::FromStr<Err=String> {
             // Encounter an operator
             if (!c.is_ascii_digit() || c == '\n') && !first_index.is_none() {
                 if let Some(index) = first_index {
-                    let mut num= T::from(for_expression[index..i].to_string().as_str());
+                    let mut num = match expression[index..i].parse::<T>() {
+                        Ok(num) => num,
+                        Err(_) => return Err(format!("Parse error!")),
+                    };
 
                     if minus_sign {
                         num *= T::from(-1);

@@ -73,13 +73,13 @@ impl<T> Lisp<T> {
 }
 
 pub fn expression<T> (input: &str) -> Result<Lisp<T>, String>
-where T: ops::MulAssign + Clone + From<i32> + str::FromStr<Err=String> {
+where T: ops::MulAssign + Clone + From<i32> + str::FromStr {
     let mut lexer = Lexer::new(input)?;
     Ok(expression_bp(&mut lexer, 0))
 }
 
 fn expression_bp<T> (lexer: &mut Lexer<T>, min_bp: u8) -> Lisp<T>
-where T: ops::MulAssign + Clone + From<i32> + str::FromStr<Err=String> {
+where T: ops::MulAssign + Clone + From<i32> + str::FromStr {
     // First part
     let mut lhs = match lexer.next() {
         Token::Number(it) => Lisp::Atom(Token::Number(it)),
