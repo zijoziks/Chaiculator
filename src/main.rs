@@ -2,9 +2,11 @@ mod lexer;
 mod lisp;
 mod calculate;
 mod cli;
+mod gui;
 
 use crate::calculate::{begin_calculation};
 use crate::cli::cli;
+use crate::gui::gui;
 
 use clap::{Parser, ArgGroup};
 
@@ -14,7 +16,7 @@ use clap::{Parser, ArgGroup};
 #[command(group(
     ArgGroup::new("mode")
     .required(true)
-    .args(["expression", "cli"]),
+    .args(["expression", "cli", "gui"]),
 ))]
 struct Args {
     #[arg(short, long)]
@@ -22,13 +24,18 @@ struct Args {
 
     #[arg(short('c'), long("cli"))]
     cli: bool,
+
+    #[arg(short('g'), long("gui"))]
+    gui: bool,
 }
 
-fn main() {
+fn main() -> Result<(), Box<dyn std::error::Error>> {
     let args = Args::parse();
 
     if args.cli {
         cli();
+    } else if args.gui {
+        gui()?;
     } else if let Some(expression) = args.expression {
         let result = begin_calculation::<rug::Integer>(&expression);
         match result {
@@ -36,4 +43,6 @@ fn main() {
             Err(error) => eprintln!("{}", error),
         }
     }
+
+    Ok(())
 }
