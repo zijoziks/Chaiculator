@@ -1,6 +1,7 @@
 // These traits are necessary for methods that need copying
 use std::ops;
 use std::str;
+use rug;
 
 #[derive(Debug, Clone)]
 pub enum Token<T> {
@@ -21,12 +22,41 @@ where T: Clone {
     }
 }
 
+pub trait ParseNumber: Sized {
+    fn parse_number(s: &str, neg: bool) -> Result<Self, String>;
+}
+
+impl ParseNumber for rug::Integer {
+    fn parse_number(s: &str, neg: bool) -> Result<rug::Integer, String> {
+        let mut result = match s.parse::<rug::Integer>() {
+            Ok(num) => num,
+            Err(_) => return Err(format!("Could not parse number: {}", s)),
+        };
+        if neg {
+            result = -result;
+        }
+
+        Ok(result)
+    }
+}
+
+impl ParseNumber for rug::Float {
+    fn parse_number(s: &str, neg: bool) -> Result<rug::Float, String> {
+        let parsed = rug::Float::parse(s);
+        let mut f = rug::Float::with_val(53, parsed.unwrap());
+        if neg {
+            f = -f;
+        }
+        Ok(f)
+    }
+}
+
 pub struct Lexer<T> {
     pub tokens: Vec<Token<T>>,
 }
 
 impl<T> Lexer<T> 
-where T: Clone + From<i32> + ops::MulAssign + str::FromStr {
+where T: Clone + ops::MulAssign + ParseNumber {
     fn deduct_token(deduct_from: char) -> Token<T> {
         match deduct_from {
             '+' => Token::Op('+'),
@@ -75,15 +105,8 @@ where T: Clone + From<i32> + ops::MulAssign + str::FromStr {
             // Encounter an operator
             if (!c.is_ascii_digit() || c == '\n') && !first_index.is_none() {
                 if let Some(index) = first_index {
-                    let mut num = match expression[index..i].parse::<T>() {
-                        Ok(num) => num,
-                        Err(_) => return Err(format!("Parse error!")),
-                    };
-
-                    if minus_sign {
-                        num *= T::from(-1);
-                        minus_sign = false;
-                    }
+                    let num = ParseNumber::parse_number(&for_expression[index..i], minus_sign)?;
+                    minus_sign = false;
 
                     tokens.push(Token::Number(num));
 

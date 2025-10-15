@@ -1,16 +1,16 @@
 use std::ops;
 use std::str;
 use crate::lisp::{Lisp, State};
-use crate::lexer::Token;
+use crate::lexer::{Token, ParseNumber};
 use crate::lisp;
 
-pub trait Number: ops::MulAssign + Clone + From<i32> + str::FromStr +
+pub trait Number: ops::MulAssign + Clone + ParseNumber +
 ops::Add<Output = Self> + ops::Sub<Output = Self> + ops::Mul<Output = Self> + ops::Div<Output = Self> { }
 
-impl<T> Number for T where T: ops::MulAssign + Clone + From<i32> + str::FromStr +
+impl<T> Number for T where T: ops::MulAssign + Clone + ParseNumber +
 ops::Add<Output = Self> + ops::Sub<Output = Self> + ops::Mul<Output = Self> + ops::Div<Output = Self> { }
 
-enum Type {
+pub enum Type {
     Integer,
     Float,
 }
