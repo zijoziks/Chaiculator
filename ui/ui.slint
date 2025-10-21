@@ -1,6 +1,56 @@
+import { Button, VerticalBox } from "std-widgets.slint";
+
 export component MainWindow inherits Window {
-    Text {
-        text: "hello world";
-        color: green;
+    width: 300px;
+    height: 400px;
+
+    in-out property <string> display: "0";
+
+    VerticalBox {
+            Rectangle {
+                border-color: black;
+                border-width: 1px;
+                border-radius: 5px;
+                height: 30px;
+
+                VerticalLayout {
+                    padding: 5px;
+                    Text {
+                        text: display;
+                    }
+                }
+            }
+
+            GridLayout {
+                spacing: 10px;
+                Row {
+                    Button { text: "1"; }
+                    Button { text: "2"; }
+                    Button { text: "3"; }
+                    Button { text: "+"; }
+                }
+
+                Row {
+                    Button { text: "4"; }
+                    Button { text: "5"; }
+                    Button { text: "6"; }
+                    Button { text: "-"; }
+                }
+
+                Row {
+                    Button { text: "7"; }
+                    Button { text: "8"; }
+                    Button { text: "9"; }
+                    Button { text: "*"; }
+                }
+
+                Row {
+                    Button { text: "="; }
+                    Button { text: "C"; }
+                    Button { text: "%"; }
+                    Button { text: "/"; }
+                }
+            }
     }
+
 }
