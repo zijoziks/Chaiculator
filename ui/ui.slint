@@ -1,14 +1,15 @@
 import { Button, VerticalBox } from "std-widgets.slint";
 
 export component MainWindow inherits Window {
-    width: 300px;
+    width: 400px;
     height: 400px;
 
-    in-out property <string> display: "0";
+    in-out property <string> display: "";
+    callback button_pressed(text: string);
 
     VerticalBox {
             Rectangle {
-                border-color: black;
+                border-color: grey;
                 border-width: 1px;
                 border-radius: 5px;
                 height: 30px;
@@ -24,31 +25,31 @@ export component MainWindow inherits Window {
             GridLayout {
                 spacing: 10px;
                 Row {
-                    Button { text: "1"; }
-                    Button { text: "2"; }
-                    Button { text: "3"; }
-                    Button { text: "+"; }
+                    Button { text: "1"; clicked => { button_pressed("1"); } }
+                    Button { text: "2"; clicked => { button_pressed("2"); } }
+                    Button { text: "3"; clicked => { button_pressed("3"); } }
+                    Button { text: "+"; clicked => { button_pressed("+"); } }
                 }
 
                 Row {
-                    Button { text: "4"; }
-                    Button { text: "5"; }
-                    Button { text: "6"; }
-                    Button { text: "-"; }
+                    Button { text: "4"; clicked => { button_pressed("4"); } }
+                    Button { text: "5"; clicked => { button_pressed("5"); } }
+                    Button { text: "6"; clicked => { button_pressed("6"); } }
+                    Button { text: "-"; clicked => { button_pressed("-"); } }
                 }
 
                 Row {
-                    Button { text: "7"; }
-                    Button { text: "8"; }
-                    Button { text: "9"; }
-                    Button { text: "*"; }
+                    Button { text: "7"; clicked => { button_pressed("7"); } }
+                    Button { text: "8"; clicked => { button_pressed("8"); } }
+                    Button { text: "9"; clicked => { button_pressed("9"); } }
+                    Button { text: "*"; clicked => { button_pressed("*"); } }
                 }
 
                 Row {
-                    Button { text: "="; }
-                    Button { text: "C"; }
-                    Button { text: "%"; }
-                    Button { text: "/"; }
+                    Button { text: "="; clicked => { button_pressed("="); } }
+                    Button { text: "C"; clicked => { button_pressed("C"); } }
+                    Button { text: "%"; clicked => { button_pressed("%"); } }
+                    Button { text: "/"; clicked => { button_pressed("/"); } }
                 }
             }
     }
