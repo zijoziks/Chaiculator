@@ -10,31 +10,6 @@ ops::Add<Output = Self> + ops::Sub<Output = Self> + ops::Mul<Output = Self> + op
 impl<T> Number for T where T: ops::MulAssign + Clone + ParseNumber +
 ops::Add<Output = Self> + ops::Sub<Output = Self> + ops::Mul<Output = Self> + ops::Div<Output = Self> { }
 
-pub enum Type {
-    Integer,
-    Float,
-}
-
-pub fn deduct_type (expression: &str) -> Type {
-    if contains_float_operator(expression) {
-        return Type::Float;
-    }
-
-    Type::Integer
-}
-
-fn contains_float_operator (expression: &str) -> bool {
-    let required_operators: Vec<char> = vec![ '/', ','];
-
-    for c in expression.chars() {
-        if required_operators.contains(&c) {
-            return true;
-        }
-    }
-
-    false
-}
-
 pub fn begin_calculation<T> (expression: &str) -> Result<T, String>
 where T: Number {
     let lisp_expression = lisp::expression(expression.trim())?;

@@ -3,6 +3,7 @@ mod lisp;
 mod calculate;
 mod cli;
 mod gui;
+mod calcutils;
 
 use crate::calculate::{begin_calculation};
 use crate::cli::cli;

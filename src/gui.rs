@@ -1,4 +1,5 @@
 use slint::{ComponentHandle, ToSharedString};
+use crate::calcutils;
 
 slint::include_modules!();
 
@@ -14,7 +15,17 @@ pub fn gui() -> Result<(), slint::PlatformError> {
         let button = input.as_str();
 
         match button {
-            "=" => { ui.set_display("RESULT".to_shared_string()) }
+            "=" => {
+                match calcutils::return_string_result(&display) {
+                    Ok(result) => {
+                        ui.set_display(result.to_shared_string())
+                    },
+                    Err(error) => {
+                        eprintln!("{}", error);
+                        ui.set_display("ERROR".to_shared_string())
+                    }
+                }
+            }
             "C" => { ui.set_display("".to_shared_string()) }
             _ => {
                display.push_str(button);
