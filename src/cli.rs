@@ -1,5 +1,5 @@
 use std;
-use crate::calcutils;
+use crate::eval;
 
 
 
@@ -15,7 +15,7 @@ pub fn cli() {
 
         let output;
 
-        match calcutils::return_string_result(&expression){
+        match eval::return_string_result(&expression){
             Ok(result) => output = result,
             Err(error) => {
                 eprintln!("Error caught! {}", error);

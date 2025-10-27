@@ -1,5 +1,5 @@
 use slint::{ComponentHandle, ToSharedString};
-use crate::calcutils;
+use crate::eval;
 
 slint::include_modules!();
 
@@ -16,7 +16,7 @@ pub fn gui() -> Result<(), slint::PlatformError> {
 
         match button {
             "=" => {
-                match calcutils::return_string_result(&display) {
+                match eval::return_string_result(&display) {
                     Ok(result) => {
                         ui.set_display(result.to_shared_string())
                     },

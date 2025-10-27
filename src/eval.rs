@@ -1,4 +1,7 @@
-use crate::calculate;
+mod lexer;
+mod lisp;
+mod calculate;
+
 use rug;
 
 pub fn return_string_result(expression: &str) -> Result<String, String> {

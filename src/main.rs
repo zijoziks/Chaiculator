@@ -1,11 +1,7 @@
-mod lexer;
-mod lisp;
-mod calculate;
 mod cli;
 mod gui;
-mod calcutils;
+mod eval;
 
-use crate::calculate::{begin_calculation};
 use crate::cli::cli;
 use crate::gui::gui;
 
@@ -38,7 +34,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     } else if args.gui {
         gui()?;
     } else if let Some(expression) = args.expression {
-        let result = begin_calculation::<rug::Integer>(&expression);
+        let result = eval::return_string_result(&expression);
         match result {
             Ok(result) => println!("{}", result),
             Err(error) => eprintln!("{}", error),

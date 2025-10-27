@@ -1,6 +1,6 @@
 use std::ops;
 use std::str;
-use crate::lexer::{Token, Lexer, ParseNumber};
+use super::lexer::{Token, Lexer, ParseNumber};
 
 #[derive(Debug)]
 pub enum Lisp<T> {
