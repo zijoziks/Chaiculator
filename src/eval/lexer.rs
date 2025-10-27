@@ -8,7 +8,6 @@ pub enum Token<T> {
     Number(T),
     Op(char),
     EOF,
-    Invalid,
 }
 
 impl<T> Token<T> 
@@ -57,15 +56,14 @@ pub struct Lexer<T> {
 
 impl<T> Lexer<T> 
 where T: Clone + ops::MulAssign + ParseNumber {
-    fn deduct_token(deduct_from: char) -> Token<T> {
+    fn deduct_token(deduct_from: char) -> Result<Token<T>, String> {
         match deduct_from {
-            '+' => Token::Op('+'),
-            '-' => Token::Op('-'),
-            '*' => Token::Op('*'),
-            '/' => Token::Op('/'),
+            '+' => Ok(Token::Op('+')),
+            '-' => Ok(Token::Op('-')),
+            '*' => Ok(Token::Op('*')),
+            '/' => Ok(Token::Op('/')),
             _ => {
-                println!("Huh?");
-                Token::Invalid
+                Err(format!("Invalid token found: {}", deduct_from))
             }
         }
     }
@@ -114,7 +112,7 @@ where T: Clone + ops::MulAssign + ParseNumber {
                         break;
                     }
 
-                    let token = Lexer::deduct_token(c);
+                    let token = Lexer::deduct_token(c)?;
                     // TODO error handling for invalid cases and invalid token vector
                     tokens.push(token);
                 }
