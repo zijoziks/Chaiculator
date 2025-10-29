@@ -22,30 +22,24 @@ where T: Clone {
 }
 
 pub trait ParseNumber: Sized {
-    fn parse_number(s: &str, neg: bool) -> Result<Self, String>;
+    fn parse_number(s: &str) -> Result<Self, String>;
 }
 
 impl ParseNumber for rug::Integer {
-    fn parse_number(s: &str, neg: bool) -> Result<rug::Integer, String> {
-        let mut result = match s.parse::<rug::Integer>() {
+    fn parse_number(s: &str) -> Result<rug::Integer, String> {
+        let result = match s.parse::<rug::Integer>() {
             Ok(num) => num,
             Err(_) => return Err(format!("Could not parse number: {}", s)),
         };
-        if neg {
-            result = -result;
-        }
 
         Ok(result)
     }
 }
 
 impl ParseNumber for rug::Float {
-    fn parse_number(s: &str, neg: bool) -> Result<rug::Float, String> {
+    fn parse_number(s: &str) -> Result<rug::Float, String> {
         let parsed = rug::Float::parse(s);
-        let mut f = rug::Float::with_val(53, parsed.unwrap());
-        if neg {
-            f = -f;
-        }
+        let f = rug::Float::with_val(53, parsed.unwrap());
         Ok(f)
     }
 }
@@ -76,8 +70,7 @@ where T: Clone + ops::MulAssign + ParseNumber {
 
         let mut tokens: Vec<Token<T>> = Vec::new();
 
-        let mut first_index: Option<usize> = None;
-        let mut minus_sign: bool = false;
+        let mut number = String::new();
 
         // We'll use the following string because it makes our lexer work properly
         let mut for_expression = expression.to_string();
@@ -85,39 +78,35 @@ where T: Clone + ops::MulAssign + ParseNumber {
 
 
         // FOR LOOP BEGINS HERE
-        for (i, c) in for_expression.chars().enumerate() {
-            // Encounter first digit
-            if c.is_ascii_digit() && first_index.is_none() {
-                first_index = Some(i);
+        for c in for_expression.chars() {
+            if c.is_ascii_digit() {
+                number.push(c);
             }
 
             // Encounter an operator before a number
-            if is_operator(c) && first_index.is_none() {
-                if c == '-' && minus_sign == false {
-                    minus_sign = true;
+            if is_operator(c) && number.is_empty() {
+                if c == '-' {
+                    number.push(c);
+                    continue;
                 } else {
                     return Err(format!("Invalid operator: {}", c))
                 }
             }
 
             // Encounter an operator
-            if (!c.is_ascii_digit() || c == '\n') && !first_index.is_none() {
-                if let Some(index) = first_index {
-                    let num = ParseNumber::parse_number(&for_expression[index..i], minus_sign)?;
-                    minus_sign = false;
+            if (!c.is_ascii_digit() || c == '\n') && !number.is_empty() {
+                let num = ParseNumber::parse_number(&number)?;
+                tokens.push(Token::Number(num));
+                number.clear();
 
-                    tokens.push(Token::Number(num));
-
-                    if c == '\n' {
-                        break;
-                    }
-
-                    let token = Lexer::deduct_token(c)?;
-                    // TODO error handling for invalid cases and invalid token vector
-                    tokens.push(token);
+                // End of expression
+                if c == '\n' {
+                    break;
                 }
 
-                first_index = None;
+                // Push the operator
+                let token = Lexer::deduct_token(c)?;
+                tokens.push(token);
             }
         }
 
