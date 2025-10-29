@@ -1,6 +1,7 @@
 mod lexer;
 mod lisp;
 mod calculate;
+mod traits;
 
 use rug;
 

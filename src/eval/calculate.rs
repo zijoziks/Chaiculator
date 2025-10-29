@@ -1,14 +1,8 @@
-use std::ops;
 use std::str;
 use super::lisp::{Lisp, State};
-use super::lexer::{Token, ParseNumber};
+use super::lexer::Token;
 use super::lisp;
-
-pub trait Number: ops::MulAssign + Clone + ParseNumber +
-ops::Add<Output = Self> + ops::Sub<Output = Self> + ops::Mul<Output = Self> + ops::Div<Output = Self> { }
-
-impl<T> Number for T where T: ops::MulAssign + Clone + ParseNumber +
-ops::Add<Output = Self> + ops::Sub<Output = Self> + ops::Mul<Output = Self> + ops::Div<Output = Self> { }
+use super::traits::Number;
 
 pub fn begin_calculation<T> (expression: &str) -> Result<T, String>
 where T: Number {

@@ -1,6 +1,6 @@
-use std::ops;
 use std::str;
-use super::lexer::{Token, Lexer, ParseNumber};
+use super::lexer::{Token, Lexer};
+use super::traits::Number;
 
 #[derive(Debug)]
 pub enum Lisp<T> {
@@ -73,13 +73,13 @@ impl<T> Lisp<T> {
 }
 
 pub fn expression<T> (input: &str) -> Result<Lisp<T>, String>
-where T: ops::MulAssign + Clone + ParseNumber {
+where T: Number {
     let mut lexer = Lexer::new(input)?;
     Ok(expression_bp(&mut lexer, 0))
 }
 
 fn expression_bp<T> (lexer: &mut Lexer<T>, min_bp: u8) -> Lisp<T>
-where T: ops::MulAssign + Clone + ParseNumber {
+where T: Number {
     // First part
     let mut lhs = match lexer.next() {
         Token::Number(it) => Lisp::Atom(Token::Number(it)),

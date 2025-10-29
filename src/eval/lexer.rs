@@ -1,8 +1,6 @@
 // These traits are necessary for methods that need copying
-use std::ops;
 use std::str;
-use rug;
-
+use super::traits::{Number, ParseNumber};
 #[derive(Debug, Clone)]
 pub enum Token<T> {
     Number(T),
@@ -11,7 +9,7 @@ pub enum Token<T> {
 }
 
 impl<T> Token<T> 
-where T: Clone {
+where T: Number {
     pub fn unwrap_token_num(&self) -> Result<T, String> {
         if let Token::Number(num) = self {
             Ok(num.clone())
@@ -21,35 +19,12 @@ where T: Clone {
     }
 }
 
-pub trait ParseNumber: Sized {
-    fn parse_number(s: &str) -> Result<Self, String>;
-}
-
-impl ParseNumber for rug::Integer {
-    fn parse_number(s: &str) -> Result<rug::Integer, String> {
-        let result = match s.parse::<rug::Integer>() {
-            Ok(num) => num,
-            Err(_) => return Err(format!("Could not parse number: {}", s)),
-        };
-
-        Ok(result)
-    }
-}
-
-impl ParseNumber for rug::Float {
-    fn parse_number(s: &str) -> Result<rug::Float, String> {
-        let parsed = rug::Float::parse(s);
-        let f = rug::Float::with_val(53, parsed.unwrap());
-        Ok(f)
-    }
-}
-
 pub struct Lexer<T> {
     pub tokens: Vec<Token<T>>,
 }
 
 impl<T> Lexer<T> 
-where T: Clone + ops::MulAssign + ParseNumber {
+where T: Number + ParseNumber {
     fn deduct_token(deduct_from: char) -> Result<Token<T>, String> {
         match deduct_from {
             '+' => Ok(Token::Op('+')),
