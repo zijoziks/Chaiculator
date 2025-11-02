@@ -1,16 +1,39 @@
 // These traits are necessary for methods that need copying
 use std::str;
 use super::traits::{Number, ParseNumber};
+
+#[derive(Debug, Clone)]
+pub enum NumberKind<T> {
+    Normal(T),
+    Percent(T)
+}
+
+impl<T> NumberKind<T>
+where T: Number + ParseNumber {
+    pub fn is_normal(&self) -> bool { matches!(self, NumberKind::Normal(_)) }
+
+    pub fn is_percent(&self) -> bool {
+        matches!(self, NumberKind::Percent(_))
+    }
+
+    pub fn unwrap(self) -> Result<T, String> {
+        match self {
+            NumberKind::Normal(num) => Ok(num),
+            NumberKind::Percent(num) => Ok(num / T::from_number(100)?),
+        }
+    }
+}
+
 #[derive(Debug, Clone)]
 pub enum Token<T> {
-    Number(T),
+    Number(NumberKind<T>),
     Op(char),
     EOF,
 }
 
 impl<T> Token<T> 
 where T: Number {
-    pub fn unwrap_token_num(&self) -> Result<T, String> {
+    pub fn unwrap_token_num(&self) -> Result<NumberKind<T>, String> {
         if let Token::Number(num) = self {
             Ok(num.clone())
         } else {
@@ -44,8 +67,8 @@ where T: Number + ParseNumber {
         }
 
         let mut tokens: Vec<Token<T>> = Vec::new();
-
         let mut number = String::new();
+        let mut percent = false;
 
         // We'll use the following string because it makes our lexer work properly
         let mut for_expression = expression.to_string();
@@ -68,10 +91,22 @@ where T: Number + ParseNumber {
                 }
             }
 
+
+            // Percentage
+            if c == '%' && !number.is_empty() {
+                percent = true;
+                continue;
+            }
+
             // Encounter an operator
             if (!c.is_ascii_digit() || c == '\n') && !number.is_empty() {
                 let num = ParseNumber::parse_number(&number)?;
-                tokens.push(Token::Number(num));
+                if percent {
+                    tokens.push(Token::Number(NumberKind::Percent(num)));
+                    percent = false;
+                } else {
+                    tokens.push(Token::Number(NumberKind::Normal(num)));
+                }
                 number.clear();
 
                 // End of expression
@@ -106,7 +141,7 @@ fn is_expression_valid(expression: &str) -> bool {
     let allowed: Vec<char> = vec!
         [
             '0', '1', '2', '3', '4', '5', '6', '7', '8', '9',
-            '+', '-', '*', '/',
+            '+', '-', '*', '/', '%'
         ];
     expression.chars().all(|c| allowed.contains(&c))
 }

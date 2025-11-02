@@ -2,6 +2,8 @@ use std::ops;
 
 pub trait ParseNumber: Sized {
     fn parse_number(s: &str) -> Result<Self, String>;
+
+    fn from_number(num: i32) -> Result<Self, String>;
 }
 
 impl ParseNumber for rug::Integer {
@@ -13,6 +15,10 @@ impl ParseNumber for rug::Integer {
 
         Ok(result)
     }
+
+    fn from_number(num: i32) -> Result<Self, String> {
+        Ok(rug::Integer::from(num))
+    }
 }
 
 impl ParseNumber for rug::Float {
@@ -21,8 +27,13 @@ impl ParseNumber for rug::Float {
         let f = rug::Float::with_val(53, parsed.unwrap());
         Ok(f)
     }
+
+    fn from_number(num: i32) -> Result<Self, String> {
+        Ok(rug::Float::with_val(53, num))
+    }
 }
 
+// Big container of traits necessary for rug types to work
 pub trait Number: ops::MulAssign + Clone + ParseNumber +
 ops::Add<Output = Self> + ops::Sub<Output = Self> + ops::Mul<Output = Self> + ops::Div<Output = Self> { }
 
