@@ -33,7 +33,7 @@ fn deduct_type (expression: &str) -> Type {
 }
 
 fn contains_float_operator (expression: &str) -> bool {
-    let required_operators: Vec<char> = vec![ '/', ','];
+    let required_operators: Vec<char> = vec![ '/', ',', '%'];
 
     for c in expression.chars() {
         if required_operators.contains(&c) {
